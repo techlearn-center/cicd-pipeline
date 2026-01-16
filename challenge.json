@@ -1,0 +1,47 @@
+{
+  "id": "cicd-pipeline",
+  "title": "CI/CD Pipeline",
+  "description": "Build a complete CI/CD pipeline with GitHub Actions that tests, builds, and deploys your application automatically.",
+  "level": 1,
+  "track": "devops",
+  "difficulty": "beginner",
+  "estimated_time": "2-3 hours",
+  "prerequisites": [
+    "dockerize-python-app"
+  ],
+  "skills": [
+    "github-actions",
+    "ci-cd",
+    "automated-testing",
+    "docker-builds",
+    "deployment-pipelines",
+    "secrets-management"
+  ],
+  "tools_required": [
+    "git",
+    "github-account",
+    "docker"
+  ],
+  "points": {
+    "ci_workflow": 25,
+    "build_workflow": 25,
+    "deploy_workflow": 25,
+    "tests_pass": 25,
+    "total": 100
+  },
+  "passing_score": 60,
+  "files_to_complete": [
+    ".github/workflows/ci.yml",
+    ".github/workflows/build.yml",
+    ".github/workflows/deploy.yml"
+  ],
+  "learning_outcomes": [
+    "Understand CI/CD concepts and benefits",
+    "Write GitHub Actions workflow files",
+    "Configure automated testing pipelines",
+    "Build and push Docker images in CI",
+    "Set up deployment pipelines for staging and production",
+    "Manage secrets securely in CI/CD",
+    "Configure branch protection rules"
+  ]
+}

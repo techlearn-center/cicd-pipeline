@@ -1,0 +1,39 @@
+# CI Pipeline - STARTER FILE
+# ==========================
+# TODO: Complete this workflow!
+#
+# Requirements:
+# - Run on push to main and on pull requests
+# - Set up Python 3.11
+# - Install dependencies from requirements.txt
+# - Run pytest on tests/ folder
+# - Run flake8 linter on src/ folder
+#
+# See README.md Step 1 for guidance!
+
+name: CI Pipeline
+
+on:
+  # TODO: Add triggers for push to main and pull_request
+  workflow_dispatch:  # Manual trigger (keep this for testing)
+
+jobs:
+  test:
+    name: Test & Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # TODO: Add step to set up Python 3.11
+      # Hint: uses: actions/setup-python@v5
+
+      # TODO: Add step to install dependencies
+      # Hint: pip install -r requirements.txt pytest flake8
+
+      # TODO: Add step to run linter
+      # Hint: flake8 src/
+
+      # TODO: Add step to run tests
+      # Hint: pytest tests/ -v

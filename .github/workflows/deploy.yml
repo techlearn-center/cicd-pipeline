@@ -1,0 +1,73 @@
+# Deploy Pipeline - STARTER FILE
+# ==============================
+# TODO: Complete this workflow!
+#
+# Requirements:
+# - Deploy to staging on push to main
+# - Deploy to production on release/tag
+# - Use GitHub Environments
+# - Include deployment verification
+#
+# See README.md Step 3 for guidance!
+
+name: Deploy
+
+on:
+  # TODO: Configure triggers
+  # - push to main (for staging)
+  # - release published (for production)
+  workflow_dispatch:  # Manual trigger (keep for testing)
+
+jobs:
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+
+    # TODO: Add condition to only run on push to main
+    # if: github.ref == 'refs/heads/main'
+
+    # TODO: Add environment
+    # environment:
+    #   name: staging
+    #   url: https://staging.example.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # TODO: Add deployment steps
+      # In a real scenario, you might:
+      # - SSH to server and pull new image
+      # - Use kubectl to update Kubernetes deployment
+      # - Use cloud CLI (aws, gcloud, az) to update service
+
+      - name: Simulate staging deployment
+        run: |
+          echo "🚀 Deploying to staging..."
+          echo "Image: ghcr.io/${{ github.repository }}:${{ github.sha }}"
+          echo "✅ Deployment complete!"
+
+      # TODO: Add deployment verification
+      # Hint: curl the health endpoint
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+
+    # TODO: Add condition to only run on release
+    # if: github.event_name == 'release'
+
+    # TODO: Add environment with protection
+    # environment:
+    #   name: production
+    #   url: https://example.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Simulate production deployment
+        run: |
+          echo "🚀 Deploying to production..."
+          echo "This would deploy the release version"
+          echo "✅ Deployment complete!"

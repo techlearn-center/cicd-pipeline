@@ -1,0 +1,281 @@
+name: Grade CI/CD Challenge
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  grade:
+    name: Grade Workflow Files
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Grade CI Workflow (25 points)
+        id: ci
+        run: |
+          python -c "
+          import yaml
+          import sys
+
+          try:
+              with open('.github/workflows/ci.yml') as f:
+                  content = f.read()
+                  workflow = yaml.safe_load(content)
+          except FileNotFoundError:
+              print('✗ ci.yml not found')
+              with open('ci_score.txt', 'w') as f:
+                  f.write('0')
+              sys.exit(0)
+
+          points = 0
+          max_points = 25
+
+          # Check triggers (5 points)
+          triggers = workflow.get('on', {})
+          has_push = 'push' in triggers
+          has_pr = 'pull_request' in triggers
+          if has_push and has_pr:
+              print('✓ Triggers: push + pull_request')
+              points += 5
+          elif has_push or has_pr:
+              print('~ Triggers: partial')
+              points += 2
+          else:
+              print('✗ Triggers: missing')
+
+          # Check Python setup (5 points)
+          if 'setup-python' in content:
+              print('✓ Python setup')
+              points += 5
+          else:
+              print('✗ Python setup missing')
+
+          # Check dependencies (5 points)
+          if 'pip install' in content:
+              print('✓ Dependencies install')
+              points += 5
+          else:
+              print('✗ Dependencies install missing')
+
+          # Check linting (5 points)
+          if 'flake8' in content:
+              print('✓ Linting configured')
+              points += 5
+          else:
+              print('✗ Linting missing')
+
+          # Check tests (5 points)
+          if 'pytest' in content:
+              print('✓ Tests configured')
+              points += 5
+          else:
+              print('✗ Tests missing')
+
+          print(f'\nCI Score: {points}/{max_points}')
+          with open('ci_score.txt', 'w') as f:
+              f.write(str(points))
+          "
+
+      - name: Grade Build Workflow (25 points)
+        id: build
+        run: |
+          python -c "
+          import yaml
+          import sys
+
+          try:
+              with open('.github/workflows/build.yml') as f:
+                  content = f.read()
+                  workflow = yaml.safe_load(content)
+          except FileNotFoundError:
+              print('✗ build.yml not found')
+              with open('build_score.txt', 'w') as f:
+                  f.write('0')
+              sys.exit(0)
+
+          points = 0
+          max_points = 25
+
+          # Check Docker Buildx (5 points)
+          if 'docker/setup-buildx-action' in content:
+              print('✓ Docker Buildx')
+              points += 5
+          else:
+              print('✗ Docker Buildx missing')
+
+          # Check login (5 points)
+          if 'docker/login-action' in content:
+              print('✓ Registry login')
+              points += 5
+          else:
+              print('✗ Registry login missing')
+
+          # Check ghcr.io (5 points)
+          if 'ghcr.io' in content:
+              print('✓ GitHub Registry')
+              points += 5
+          else:
+              print('✗ GitHub Registry missing')
+
+          # Check build-push-action (5 points)
+          if 'docker/build-push-action' in content:
+              print('✓ Build & Push')
+              points += 5
+          else:
+              print('✗ Build & Push missing')
+
+          # Check permissions (5 points)
+          if 'packages: write' in content:
+              print('✓ Permissions')
+              points += 5
+          else:
+              print('✗ Permissions missing')
+
+          print(f'\nBuild Score: {points}/{max_points}')
+          with open('build_score.txt', 'w') as f:
+              f.write(str(points))
+          "
+
+      - name: Grade Deploy Workflow (25 points)
+        id: deploy
+        run: |
+          python -c "
+          import yaml
+          import sys
+
+          try:
+              with open('.github/workflows/deploy.yml') as f:
+                  content = f.read()
+                  workflow = yaml.safe_load(content)
+          except FileNotFoundError:
+              print('✗ deploy.yml not found')
+              with open('deploy_score.txt', 'w') as f:
+                  f.write('0')
+              sys.exit(0)
+
+          points = 0
+          max_points = 25
+
+          # Check staging (5 points)
+          if 'staging' in content.lower():
+              print('✓ Staging job')
+              points += 5
+          else:
+              print('✗ Staging job missing')
+
+          # Check production (5 points)
+          if 'production' in content.lower():
+              print('✓ Production job')
+              points += 5
+          else:
+              print('✗ Production job missing')
+
+          # Check environments (5 points)
+          if 'environment:' in content:
+              print('✓ Environments')
+              points += 5
+          else:
+              print('✗ Environments missing')
+
+          # Check conditions (5 points)
+          if 'if:' in content:
+              print('✓ Conditional deploy')
+              points += 5
+          else:
+              print('✗ Conditional deploy missing')
+
+          # Check release (5 points)
+          if 'release' in content:
+              print('✓ Release trigger')
+              points += 5
+          else:
+              print('✗ Release trigger missing')
+
+          print(f'\nDeploy Score: {points}/{max_points}')
+          with open('deploy_score.txt', 'w') as f:
+              f.write(str(points))
+          "
+
+      - name: Run Actual Tests (25 points)
+        id: tests
+        run: |
+          pip install -r requirements.txt pytest flake8
+
+          POINTS=0
+          MAX=25
+
+          # Run linting (10 points)
+          echo "Running linter..."
+          if flake8 src/ --count --select=E9,F63,F7,F82 --show-source --statistics; then
+            echo "✓ Linting passed"
+            POINTS=$((POINTS + 10))
+          else
+            echo "✗ Linting failed"
+          fi
+
+          # Run tests (15 points)
+          echo "Running tests..."
+          if pytest tests/ -v; then
+            echo "✓ Tests passed"
+            POINTS=$((POINTS + 15))
+          else
+            echo "✗ Tests failed"
+          fi
+
+          echo "Tests Score: $POINTS/$MAX"
+          echo $POINTS > tests_score.txt
+
+      - name: Calculate Total Score
+        id: total
+        run: |
+          CI=$(cat ci_score.txt)
+          BUILD=$(cat build_score.txt)
+          DEPLOY=$(cat deploy_score.txt)
+          TESTS=$(cat tests_score.txt)
+
+          TOTAL=$((CI + BUILD + DEPLOY + TESTS))
+          MAX=100
+
+          echo ""
+          echo "═══════════════════════════════════════════"
+          echo "           CI/CD PIPELINE CHALLENGE         "
+          echo "═══════════════════════════════════════════"
+          echo ""
+          echo "  📋 CI Workflow:      $CI/25 points"
+          echo "  🐳 Build Workflow:   $BUILD/25 points"
+          echo "  🚀 Deploy Workflow:  $DEPLOY/25 points"
+          echo "  ✅ Tests Pass:       $TESTS/25 points"
+          echo ""
+          echo "───────────────────────────────────────────"
+          echo "  📊 TOTAL SCORE: $TOTAL/$MAX points"
+          echo "───────────────────────────────────────────"
+          echo ""
+
+          if [ $TOTAL -eq $MAX ]; then
+            echo "  🎉 PERFECT SCORE! You mastered CI/CD pipelines!"
+          elif [ $TOTAL -ge 75 ]; then
+            echo "  ✨ Great job! Your pipelines are solid!"
+          elif [ $TOTAL -ge 50 ]; then
+            echo "  📈 Good progress! Keep improving!"
+          else
+            echo "  💪 Keep practicing! Check the README for hints."
+          fi
+          echo ""
+
+          # Fail if not passing
+          if [ $TOTAL -lt 60 ]; then
+            exit 1
+          fi
